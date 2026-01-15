@@ -1,139 +1,119 @@
-# Backend PHP Coding Assessment - "Monday Morning Takeover"
+# Invoice System - Work in Progress
 
-A realistic 2-3 hour take-home assessment simulating code inheritance from a previous developer.
-
-## Overview
-
-**Scenario:** Candidate inherits incomplete code with bugs. Client demo in 2 days.
-**Time:** 2-3 hours for candidates | 30-45 minutes to review
-**Requirements:** PHP 7.4+ (Composer packages allowed for PDF generation)
+**Last Updated:** January 15, 2025
 
 ## Quick Start
 
-### Send to Candidate
-
+### Run Tests
 ```bash
-cd invoice-system
-zip -r candidate-assessment.zip . \
-  -x "*.git*" \
-  -x "*docs/SCORING_RUBRIC.md" \
-  -x "*docs/ASSESSMENT_VARIANTS.md" \
-  -x "*HIRING_TEAM_GUIDE.md"
+php run_tests.php
 ```
 
-Email the zip with instructions to read `docs/CANDIDATE_INSTRUCTIONS.md`
+**Current Status:** 2 passing, 3 failing
 
-### Review Submission
+### Create Invoice (Example)
+```php
+require_once 'src/Invoice.php';
 
-1. Read their `HANDOVER.md` (10 min)
-2. Check Git history (5 min)
-3. Review code changes (15 min)
-4. Score using rubric (10 min)
-
-**See `HIRING_TEAM_GUIDE.md` for detailed instructions.**
-
-## File Structure
-
-```
-invoice-system/
-├── src/                   - PHP code with 5 intentional bugs
-├── data/                  - JSON files (one corrupted)
-├── tests/                 - Test suite (2 pass, 3 fail initially)
-├── docs/
-│   ├── CANDIDATE_INSTRUCTIONS.md  ✓ Send to candidates
-│   ├── SCORING_RUBRIC.md          ✗ Internal only
-│   └── ASSESSMENT_VARIANTS.md     ✗ Internal only
-├── README.md              - "Previous dev" notes (part of scenario)
-└── run_tests.php          - Test runner
-
-HIRING_TEAM_GUIDE.md       ← Read this first
-README.md                  ← This file
+$invoice = new Invoice("Customer Name");
+$invoice->addItem("Product", 10.00, 2);
+echo "Total: $" . $invoice->getTotal() . "\n";
 ```
 
-## What It Tests
+## Project Structure
 
-| Area | Weight | What |
-|------|--------|------|
-| Technical Skills | 40% | Debugging, code comprehension, clean fixes |
-| Judgment & Process | 30% | Prioritization, realism, pragmatic trade-offs |
-| Communication | 30% | Documentation, client emails, honesty |
-
-## Intentional Bugs
-
-1. **qty/quantity mismatch** - Array key inconsistency → totals return $0
-2. **File overwrite** - saveToFile() replaces instead of appending
-3. **JSON corruption** - Missing brace in invoices.json (line ~30)
-4. **No validation** - Negative prices/quantities not checked
-5. **Poor ID generation** - Timestamp-based (collision risk)
-
-## Scoring Bands
-
-- **90-100:** Exceptional - Strong hire
-- **75-89:** Strong - Proceed to interview
-- **60-74:** Adequate - Interview with reservations
-- **<60:** Likely reject
-
-## Assessment Variants
-
-Three variants available (same difficulty, different focus):
-
-- **Base:** Balanced - PDF blocker, general backend (default)
-- **Variant A:** PDF is critical - problem-solving focus
-- **Variant B:** Discount logic critical - business logic focus
-- **Variant C:** Performance issue - optimization focus
-
-See `docs/ASSESSMENT_VARIANTS.md` for implementation details.
-
-## Verify It Works
-
-```bash
-cd invoice-system
-php -l src/*.php tests/*.php    # Check syntax
-php run_tests.php               # Should show 2 pass, 3 fail
+```
+├── src/
+│   ├── Invoice.php           - Main invoice class
+│   ├── InvoiceCalculator.php - Tax and business logic helpers
+│   └── PDFGenerator.php      - PDF export (not implemented)
+├── data/
+│   ├── invoices.json         - Stored invoices
+│   └── tax_rates.json        - Tax rate configuration
+└── tests/
+    └── InvoiceTest.php       - Test suite
 ```
 
-**Expected:** Tests fail initially (bugs are intentional).
+## Known Issues
 
-## Key Features
+### Critical Bugs
+1. **Total calculation returns $0** - Check Invoice.php getTotal() method
+2. **File saving overwrites data** - saveToFile() doesn't append, replaces entire file
+3. **Data corruption** - invoices.json has malformed JSON around line 28-30
 
-- ✅ Realistic scenario (inheriting messy code)
-- ✅ Logic bugs (not syntax errors)
-- ✅ Tests judgment + technical + communication
-- ✅ Git history reveals actual process
-- ✅ Clear scoring rubric
-- ✅ Time-boxed (prevents over-engineering)
-- ✅ No external dependencies
+### Non-Critical Issues
+- No input validation (negative prices/quantities not caught)
+- Invoice ID uses timestamp (collision risk under load)
+- Array key inconsistency in code ('qty' vs 'quantity')
 
-## Documentation
+## Incomplete Features
 
-| File | Audience | Purpose |
-|------|----------|---------|
-| `HIRING_TEAM_GUIDE.md` | Hiring team | Complete usage guide |
-| `invoice-system/docs/CANDIDATE_INSTRUCTIONS.md` | Candidates | Full instructions |
-| `invoice-system/docs/SCORING_RUBRIC.md` | Reviewers | 100-point scoring system |
-| `invoice-system/docs/ASSESSMENT_VARIANTS.md` | Hiring team | Variant instructions |
+### High Priority
+- **PDF Export:** PDFGenerator.php is not implemented. **UPDATE: Composer packages are now approved - you may use any PDF library (FPDF, TCPDF, Dompdf, etc.).**
+- **Tax Loading:** Currently hardcoded to 10%. Should load from `data/tax_rates.json`.
+- **Discount Logic:** applyDiscount() and applyBusinessRules() are incomplete. Requirements unclear.
 
-## Requirements
+### Medium Priority
+- Input validation
+- Better invoice numbering system
+- Error handling
 
-**Candidate:** PHP 7.4+, text editor, Git
-**Reviewer:** PHP 7.4+, 30-45 minutes
 
-## Red Flags
+## Technical Decisions
 
-- Complete rewrite from scratch
-- Claims everything is perfect
-- One commit at the end
-- Blames previous developer
-- Spent 6+ hours
+- **Storage:** JSON files (client has no database)
+- **PHP Version:** 7.4+ required
+- **Dependencies:** Composer packages now allowed for PDF generation (policy updated)
 
-## Green Flags
+## What's Working
 
-- Fixed critical bugs first
-- Honest about limitations
-- Professional client communication
-- Good Git history (10+ commits)
-- Pragmatic solutions
+✓ Invoice creation and basic operations
+✓ Adding items to invoices
+✓ Tax calculation (hardcoded rate)
+✓ JSON serialization
+✓ Basic file loading/saving (has bugs)
 
----
+## What's Not Working
 
-**Start here:** Read `HIRING_TEAM_GUIDE.md` for complete instructions.
+✗ Total calculation (returns $0)
+✗ File append operation
+✗ PDF generation
+✗ Dynamic tax rate loading
+✗ Discount application
+✗ Input validation
+
+## Testing Notes
+
+- Tests in `tests/InvoiceTest.php`
+- 3 tests currently failing (expected: total calculation, save/load issues)
+- Need more test coverage for edge cases
+- Performance not tested with large datasets
+
+## Configuration
+
+### Tax Rates (data/tax_rates.json)
+Currently not being used. Should replace hardcoded 10% rate in InvoiceCalculator.
+
+Format:
+```json
+{
+  "US": { "CA": 0.0725, "NY": 0.08, ... },
+  "CA": { "ON": 0.13, "BC": 0.12, ... }
+}
+```
+
+## Summary
+
+1. Debug and fix total calculation
+2. Fix file saving to append instead of overwrite
+3. Repair JSON corruption in invoices.json
+4. Implement at least one incomplete feature
+5. Make decision on PDF approach
+6. Add validation
+
+## Improvements
+
+- Code style is inconsistent (mixed 'qty'/'quantity' naming)
+- Some methods have extensive comments explaining blockers
+- Tax calculation uses placeholder value
+- Invoice ID generation needs improvement for production use
