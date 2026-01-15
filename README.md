@@ -1,4 +1,4 @@
-# Invoice System - Work in Progress
+# Invoice System - Coding Assessment
 
 **Last Updated:** January 15, 2025
 
@@ -68,9 +68,13 @@ echo "Total: $" . $invoice->getTotal() . "\n";
 ## What's Working
 
 ✓ Invoice creation and basic operations
+
 ✓ Adding items to invoices
+
 ✓ Tax calculation (hardcoded rate)
+
 ✓ JSON serialization
+
 ✓ Basic file loading/saving (has bugs)
 
 ## What's Not Working
