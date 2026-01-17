@@ -16,6 +16,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN mkdir -p /app/data && chmod -R 777 /app/data
+
+RUN chmod -R 777 /app/data
+
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "src"]
+CMD ["php", "-S", "0.0.0.0:8000"]
