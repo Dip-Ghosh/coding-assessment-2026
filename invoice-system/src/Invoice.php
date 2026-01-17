@@ -1,47 +1,37 @@
 <?php
 
-/**
- * Invoice Class
- *
- * Handles invoice creation and management
- * Started: 2 weeks ago
- * Last modified: Friday (was in a hurry)
- */
-class Invoice {
-
+class Invoice
+{
     private $customer;
     private $items = [];
     private $discount = 0;
     private $id;
     private $createdAt;
 
-    public function __construct($customerName) {
-        $this->customer = $customerName;
-        $this->id = time(); // Not sure if this is the best approach...
+    public function __construct($customerName)
+    {
+        $this->customer  = $customerName;
+        $this->id        = $this->generateInvoiceId();
         $this->createdAt = date('Y-m-d H:i:s');
     }
 
-    /**
-     * Add an item to the invoice
-     * Note: Make sure to use consistent naming!
-     */
-    public function addItem($name, $price, $quantity) {
-        // No validation yet - add later?
+    private function generateInvoiceId()
+    {
+        return 'INV-' . date('Ymd') . '-' . random_int(1000, 9999);
+    }
+
+    public function addItem($name, $price, $quantity)
+    {
         $this->items[] = [
             'name' => $name,
             'price' => $price,
-            'qty' => $quantity  // Using 'qty' here
+            'qty' => $quantity,
         ];
     }
 
-    /**
-     * Calculate total
-     * BUG: This doesn't match up with addItem() - need to fix
-     */
     public function getTotal() {
         $total = 0;
         foreach ($this->items as $item) {
-            // Accessing 'quantity' but we stored it as 'qty'!
             $total += $item['price'] * $item['quantity'];
         }
         return $total - $this->discount;
@@ -95,7 +85,7 @@ class Invoice {
             'items' => $this->items,
             'discount' => $this->discount,
             'total' => $this->getTotal(),
-            'created_at' => $this->createdAt
+            'created_at' => $this->createdAt,
         ];
     }
 
