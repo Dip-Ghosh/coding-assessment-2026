@@ -23,9 +23,7 @@ class Invoice
     public function addItem($name, $price, $quantity)
     {
         $name = trim($name);
-
         $this->validateItem($name, $price, $quantity);
-
         $this->items[] = [
             'name'     => $name,
             'price'    => $price,
