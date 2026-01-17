@@ -73,30 +73,18 @@ class Invoice
         throw new Exception("Discount feature incomplete - need business rules from client");
     }
 
-    /**
-     * Get invoice ID
-     */
     public function getId() {
         return $this->id;
     }
 
-    /**
-     * Get customer name
-     */
     public function getCustomer() {
         return $this->customer;
     }
 
-    /**
-     * Get items array
-     */
     public function getItems() {
         return $this->items;
     }
 
-    /**
-     * Convert invoice to array for JSON serialization
-     */
     public function toArray() {
         return [
             'id' => $this->id,
@@ -108,21 +96,74 @@ class Invoice
         ];
     }
 
-    /**
-     * Save invoice to file
-     * FIXME: This overwrites everything! Need to fix but running out of time
-     * Should APPEND to the file, not replace it
-     */
-    public function saveToFile($filename = 'data/invoices.json') {
-        $data = $this->toArray();
+    public function saveToFile($filename = 'data/invoices.json')
+    {
+        $this->isDirectoryExists($filename);
+        $invoices = $this->loadInvoices($filename);
 
-        // This is wrong - overwrites the whole file!
-        // Should load existing invoices and append
-        // But json_encode is easier for now...
-        file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
+        if ($this->isInvoiceExists($invoices)) {
+            throw new RuntimeException("Invoice already exists: {$this->id}");
+        }
 
-        // TODO: Fix this before client demo!
+        $invoices[] = $this->toArray();
+
+        $this->writeInvoices($filename, $invoices);
+
         return true;
+    }
+
+    private function isDirectoryExists($filename)
+    {
+        $directory = dirname($filename);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+    }
+
+    private function loadInvoices($filename)
+    {
+        if (!file_exists($filename)) {
+            return [];
+        }
+
+        $contents = file_get_contents($filename);
+        if ($contents === false) {
+            throw new RuntimeException('Unable to read invoice file');
+        }
+
+        $data = json_decode($contents, true);
+        if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new RuntimeException('Invalid JSON in invoice file');
+        }
+
+        return isset($data['id']) ? [$data] : (array) $data;
+    }
+
+    private function isInvoiceExists($invoices)
+    {
+        foreach ($invoices as $invoice) {
+            if (($invoice['id'] ?? null) === $this->id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function writeInvoices($filename, $invoices)
+    {
+        $json = json_encode($invoices, JSON_PRETTY_PRINT);
+        if ($json === false) {
+            throw new RuntimeException('Failed to encode invoice data');
+        }
+
+        $tmpFile = $filename . '.tmp';
+
+        if (file_put_contents($tmpFile, $json, LOCK_EX) === false) {
+            throw new RuntimeException('Failed to write invoice file');
+        }
+
+        rename($tmpFile, $filename);
     }
 
     /**
