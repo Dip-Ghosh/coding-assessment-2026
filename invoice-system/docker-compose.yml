@@ -1,0 +1,10 @@
+services:
+  invoice:
+    build: .
+    container_name: invoice_system
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
