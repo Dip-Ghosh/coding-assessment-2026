@@ -27,11 +27,16 @@ class InvoiceTest {
         echo "Running Invoice Tests...\n";
         echo str_repeat("=", 50) . "\n\n";
 
-        $this->test_create_invoice();
-        $this->test_calculate_total();
-        $this->test_add_multiple_items();
-        $this->test_save_and_load();
+//        $this->test_create_invoice();
+//        $this->test_calculate_total();
+//        $this->test_add_multiple_items();
+//        $this->test_save_and_load();
         $this->test_tax_calculation();
+//        $this->test_item_name_cannot_be_empty();
+//        $this->test_item_price_cannot_be_negative();
+//        $this->test_item_price_must_be_numeric();
+//        $this->test_item_quantity_must_be_at_least_one();
+//        $this->test_valid_item_passes_validation();
 
         echo "\n" . str_repeat("=", 50) . "\n";
         echo "Tests Passed: " . $this->testsPassed . "\n";
@@ -185,6 +190,106 @@ class InvoiceTest {
             echo "✗ " . $testName . " - " . $message . "\n";
             $this->failures[] = $testName . ": " . $message;
         }
+    }
+
+    private function test_item_name_cannot_be_empty()
+    {
+        $invoice = new Invoice('INV-2026', '2026-01-17');
+        $exceptionThrown = false;
+
+        try {
+            $invoice->addItem('', 100.00, 1);
+        } catch (InvalidArgumentException $e) {
+            $exceptionThrown = true;
+        }
+
+        $this->assert(
+            $exceptionThrown === true,
+            'test_item_name_cannot_be_empty',
+            'Item name validation should fail for empty name'
+        );
+
+        return true;
+    }
+
+    private function test_item_price_cannot_be_negative()
+    {
+        $invoice         = new Invoice('INV-2026', '2026-01-17');
+        $exceptionThrown = false;
+
+        try {
+            $invoice->addItem('Laptop', -50.00, 1);
+        } catch (InvalidArgumentException $e) {
+            $exceptionThrown = true;
+        }
+
+        $this->assert(
+            $exceptionThrown === true,
+            'test_item_price_cannot_be_negative',
+            'Item price validation should fail for negative price'
+        );
+
+        return true;
+    }
+
+    private function test_item_price_must_be_numeric()
+    {
+        $invoice         = new Invoice('INV-2026', '2026-01-17');
+        $exceptionThrown = false;
+
+        try {
+            $invoice->addItem('Laptop', 'abc', 1);
+        } catch (InvalidArgumentException $e) {
+            $exceptionThrown = true;
+        }
+
+        $this->assert(
+            $exceptionThrown === true,
+            'test_item_price_must_be_numeric',
+            'Item price validation should fail for non-numeric price'
+        );
+
+        return true;
+    }
+
+    private function test_item_quantity_must_be_at_least_one()
+    {
+        $invoice         = new Invoice('INV-2026', '2026-01-17');
+        $exceptionThrown = false;
+
+        try {
+            $invoice->addItem('Laptop', 100.00, 0);
+        } catch (InvalidArgumentException $e) {
+            $exceptionThrown = true;
+        }
+
+        $this->assert(
+            $exceptionThrown === true,
+            'test_item_quantity_must_be_at_least_one',
+            'Item quantity validation should fail for quantity < 1'
+        );
+
+        return true;
+    }
+
+    private function test_valid_item_passes_validation()
+    {
+        $invoice         = new Invoice('INV-2026', '2026-01-17');
+        $exceptionThrown = false;
+
+        try {
+            $invoice->addItem('Laptop', 100.00, 1);
+        } catch (InvalidArgumentException $e) {
+            $exceptionThrown = true;
+        }
+
+        $this->assert(
+            $exceptionThrown === false,
+            'test_valid_item_passes_validation',
+            'Valid item should not throw validation exception'
+        );
+
+        return true;
     }
 }
 

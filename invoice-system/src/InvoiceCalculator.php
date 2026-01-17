@@ -6,32 +6,29 @@
  * Static utility methods for business logic
  * Client keeps changing their mind on requirements...
  */
-class InvoiceCalculator {
+class InvoiceCalculator
+{
+    public static function calculateTax($subtotal, $region = 'US-CA')
+    {
+        if ($subtotal <= 0) {
+            return 0;
+        }
 
-    /**
-     * Calculate tax for an invoice
-     *
-     * TODO: Load tax rates from data/tax_rates.json instead of hardcoding
-     * Currently just using 10% for everything which is WRONG
-     *
-     * @param float $subtotal The subtotal before tax
-     * @param string $region Region code (e.g., "US-CA", "CA-ON")
-     * @return float Tax amount
-     */
-    public static function calculateTax($subtotal, $region = 'US-CA') {
-        // TEMPORARY hardcoded value - need to load from JSON
-        // Client said tax rates change frequently so should be in config
         $taxRate = 0.10;
+        $taxFile = dirname(__DIR__).'/data/tax_rates.json';
 
-        // TODO: Load from tax_rates.json like this:
-        // $taxData = json_decode(file_get_contents('data/tax_rates.json'), true);
-        // Parse $region to get country and state
-        // Look up actual rate
-        // Handle default rates
-        //
-        // Ran out of time Friday, will fix Monday
+        if (file_exists($taxFile)) {
+            $taxData = json_decode(file_get_contents($taxFile), true);
+            $parts   = explode('-', $region);
+            $country = $parts[0] ?? '';
+            $state   = $parts[1] ?? 'default';
 
-        return $subtotal * $taxRate;
+            if (isset($taxData[$country])) {
+                $taxRate = $taxData[$country][$state] ?? $taxData[$country]['default'] ?? $taxRate;
+            }
+        }
+
+        return round($subtotal * $taxRate, 2);
     }
 
     /**
