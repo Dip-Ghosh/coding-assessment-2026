@@ -22,11 +22,30 @@ class Invoice
 
     public function addItem($name, $price, $quantity)
     {
+        $name = trim($name);
+
+        $this->validateItem($name, $price, $quantity);
+
         $this->items[] = [
             'name'     => $name,
             'price'    => $price,
             'quantity' => $quantity,
         ];
+    }
+
+    private function  validateItem($name, $price, $quantity)
+    {
+        if ($name === '') {
+            throw new InvalidArgumentException('Item name cannot be empty');
+        }
+
+        if (!is_numeric($price) || $price < 0) {
+            throw new InvalidArgumentException('Item price must be numeric and it should be greater than equal to 0');
+        }
+
+        if ($quantity < 1) {
+            throw new InvalidArgumentException('Item quantity must be greater than 0 or equal to 1');
+        }
     }
 
     public function getTotal() {
