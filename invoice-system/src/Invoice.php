@@ -23,9 +23,9 @@ class Invoice
     public function addItem($name, $price, $quantity)
     {
         $this->items[] = [
-            'name' => $name,
-            'price' => $price,
-            'qty' => $quantity,
+            'name'     => $name,
+            'price'    => $price,
+            'quantity' => $quantity,
         ];
     }
 
